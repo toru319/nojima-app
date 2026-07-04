@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#273579" />
+    <title>家電提案アシストPad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              nojima: {
+                navy: "#273579",
+                blue: "#1F78B4",
+                red: "#E71F25",
+                bg: "#F4F7FB",
+                border: "#DDE3EE",
+                text: "#1F2937",
+                teal: "#1B9AAA",
+                amber: "#F59E0B"
+              }
+            },
+            boxShadow: {
+              card: "0 10px 28px rgba(39, 53, 121, 0.10)"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        touch-action: manipulation;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .safe-scroll {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tap-target {
+        min-height: 44px;
+      }
+    </style>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23273579'/%3E%3Cpath d='M14 19h36v26H14z' fill='white'/%3E%3Cpath d='M18 23h28v18H18z' fill='%231F78B4'/%3E%3Cpath d='M22 49h20v4H22z' fill='%23E71F25'/%3E%3C/svg%3E" />
+    <link rel="manifest" href="manifest.json" />
+  </head>
+  <body class="bg-nojima-bg text-nojima-text">
+    <header class="bg-nojima-navy text-white shadow-lg">
+      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
+        <button class="text-left" type="button" onclick="goHome()" aria-label="ホームへ戻る">
+          <p class="text-sm font-semibold text-blue-100">店頭接客補助</p>
+          <h1 class="text-2xl font-bold tracking-normal md:text-3xl">家電提案アシストPad</h1>
+        </button>
+        <nav class="flex flex-wrap gap-2" aria-label="主要ナビゲーション">
+          <button class="tap-target rounded-md bg-white/10 px-4 py-2 font-semibold text-white ring-1 ring-white/25" type="button" onclick="goHome()">ホーム</button>
+          <button class="tap-target rounded-md bg-white px-4 py-2 font-semibold text-nojima-navy" type="button" onclick="showJanSearch()">JAN検索</button>
+          <button class="tap-target rounded-md bg-nojima-red px-4 py-2 font-semibold text-white" type="button" onclick="showComparison()">比較リスト</button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="app" class="mx-auto max-w-7xl px-5 py-6 md:px-8 md:py-8"></main>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

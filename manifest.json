@@ -1,0 +1,10 @@
+{
+  "name": "家電提案アシストPad",
+  "short_name": "提案Pad",
+  "description": "家電販売店向けの静的な接客補助Webアプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F7FB",
+  "theme_color": "#273579",
+  "icons": []
+}
