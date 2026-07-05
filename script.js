@@ -183,6 +183,7 @@ function renderCatalogProductCard(product) {
   const inComparison = state.comparisonProducts.includes(product.id);
   const features = Array.isArray(product.features) ? product.features.slice(0, 3) : [];
   const fieldLabels = getProductFieldLabels(product);
+  const specChips = getProductSpecChips(product);
   return `
     <article class="rounded-lg bg-white p-5 shadow-card ring-1 ring-nojima-border">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -204,6 +205,14 @@ function renderCatalogProductCard(product) {
           <p class="mb-2 text-xs font-bold text-slate-500">接客で使いやすい切り口</p>
           <div class="flex flex-wrap gap-2">
             ${fieldLabels.slice(0, 6).map((label) => `<span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-nojima-blue ring-1 ring-nojima-border">${escapeHtml(label)}</span>`).join("")}
+          </div>
+        </div>
+      ` : ""}
+      ${specChips.length ? `
+        <div class="mt-4">
+          <p class="mb-2 text-xs font-bold text-slate-500">確認しやすい主な仕様</p>
+          <div class="flex flex-wrap gap-2">
+            ${specChips.slice(0, 8).map((label) => `<span class="rounded-full bg-nojima-navy px-3 py-1 text-xs font-bold text-white">${escapeHtml(label)}</span>`).join("")}
           </div>
         </div>
       ` : ""}
@@ -268,10 +277,19 @@ function getFilteredCategoryProducts() {
       product.talk,
       ...(Array.isArray(product.features) ? product.features : []),
       ...(Array.isArray(product.hearingTips) ? product.hearingTips : []),
-      ...(Array.isArray(product.tags) ? product.tags : [])
+      ...(Array.isArray(product.tags) ? product.tags : []),
+      ...getSearchableSpecValues(product)
     ].join(" ").toLowerCase();
     return searchable.includes(keyword);
   });
+}
+
+function getSearchableSpecValues(product) {
+  if (!product.specs) return [];
+  return Object.values(product.specs)
+    .flatMap((value) => Array.isArray(value) ? value : [value])
+    .filter((value) => value !== undefined && value !== null)
+    .map((value) => String(value));
 }
 
 function applyKeywordFilter() {
@@ -334,7 +352,57 @@ function productMatchesFieldFilter(product, optionId) {
   const matchesMaker = Array.isArray(option.makers) && option.makers.length
     ? option.makers.includes(product.maker)
     : true;
-  return matchesTags && matchesPrice && matchesMaker;
+  const matchesSpecs = Array.isArray(option.specs) && option.specs.length
+    ? option.specs.every((condition) => productMatchesSpecCondition(product, condition))
+    : true;
+  return matchesTags && matchesPrice && matchesMaker && matchesSpecs;
+}
+
+function productMatchesSpecCondition(product, condition) {
+  const value = product?.specs?.[condition.key];
+  if (isUnknownSpec(value)) return false;
+  if (condition.exists) return specExists(value);
+  if (Object.prototype.hasOwnProperty.call(condition, "equals")) return value === condition.equals;
+  if (Array.isArray(condition.values)) return condition.values.includes(value);
+  if (Object.prototype.hasOwnProperty.call(condition, "includes")) {
+    return Array.isArray(value)
+      ? value.some((item) => String(item).includes(condition.includes))
+      : String(value).includes(condition.includes);
+  }
+  if (typeof condition.min === "number") return typeof value === "number" && value >= condition.min;
+  if (typeof condition.max === "number") return typeof value === "number" && value <= condition.max;
+  return false;
+}
+
+function specExists(value) {
+  if (isUnknownSpec(value)) return false;
+  if (Array.isArray(value)) return value.some((item) => !isUnknownSpec(item));
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value !== "なし" && value !== "非搭載";
+  return value !== null && value !== undefined;
+}
+
+function isUnknownSpec(value) {
+  if (value === undefined || value === null || value === "" || value === "要確認") return true;
+  return Array.isArray(value) && (value.length === 0 || value.every((item) => item === "要確認"));
+}
+
+function getProductSpecChips(product) {
+  if (product.category !== "earphone" || !product.specs) return [];
+  const specs = product.specs;
+  const chips = [];
+  if (!isUnknownSpec(specs.formFactor)) chips.push(specs.formFactor);
+  if (specs.anc === true) chips.push("ANCあり");
+  if (specs.anc === false) chips.push("ANCなし");
+  if (specs.ambientMode === true) chips.push("外音取り込み");
+  if (Array.isArray(specs.codecs) && specs.codecs.includes("LDAC")) chips.push("LDAC");
+  if (specs.spatialAudio === true) chips.push("空間オーディオ");
+  if (specs.multipoint === true) chips.push("マルチポイント");
+  if (!isUnknownSpec(specs.waterResistance)) chips.push(specs.waterResistance);
+  if (typeof specs.batteryTotal === "number") chips.push(`最大${specs.batteryTotal}時間`);
+  if (typeof specs.weightEach === "number") chips.push(`片耳約${specs.weightEach}g`);
+  if (specs.wirelessCharging === true) chips.push("ワイヤレス充電");
+  return chips;
 }
 
 function getProductFieldLabels(product) {
@@ -621,6 +689,7 @@ function renderComparison() {
               ${comparisonRow("型番", comparisonItems, "modelNumber")}
               ${comparisonRow("商品タイプ", comparisonItems, "productType")}
               ${comparisonRow("価格帯", comparisonItems, "priceBand")}
+              ${comparisonSpecRows(comparisonItems)}
               ${comparisonRow("主な特徴", comparisonItems, "features")}
               ${comparisonRow("向いている人", comparisonItems, "goodFor")}
               ${comparisonRow("注意点", comparisonItems, "caution")}
@@ -864,6 +933,64 @@ function comparisonRow(label, items, key) {
       }).join("")}
     </tr>
   `;
+}
+
+function comparisonSpecRows(items) {
+  if (!items.some((product) => product.category === "earphone")) return "";
+  const rows = [
+    ["装着方式", (specs) => formatSpecValue(specs.formFactor)],
+    ["ANC", (specs) => formatBooleanFeature(specs.anc)],
+    ["外音取り込み", (specs) => formatBooleanFeature(specs.ambientMode)],
+    ["対応コーデック", (specs) => formatArraySpec(specs.codecs)],
+    ["空間オーディオ", (specs) => formatBooleanFeature(specs.spatialAudio)],
+    ["マルチポイント", (specs) => formatBooleanFeature(specs.multipoint)],
+    ["防水", (specs) => formatSpecValue(specs.waterResistance)],
+    ["単体再生時間", (specs) => formatHoursSpec(specs.batterySingle)],
+    ["ケース込み再生時間", (specs) => formatHoursSpec(specs.batteryTotal)],
+    ["片耳重量", (specs) => formatWeightSpec(specs.weightEach)],
+    ["ワイヤレス充電", (specs) => formatBooleanFeature(specs.wirelessCharging)],
+    ["通話機能", (specs) => formatArraySpec(specs.callFeatures)],
+    ["仕様確認", (specs) => formatSpecValue(specs.sourceStatus)]
+  ];
+  return rows.map(([label, formatter]) => comparisonCustomRow(label, items, (product) => {
+    if (product.category !== "earphone") return "対象外";
+    return formatter(product.specs || {});
+  })).join("");
+}
+
+function comparisonCustomRow(label, items, getValue) {
+  return `
+    <tr class="border-t border-nojima-border align-top">
+      <th class="bg-nojima-bg px-4 py-3 text-nojima-navy">${escapeHtml(label)}</th>
+      ${items.map((product) => `<td class="px-4 py-3 leading-6">${escapeHtml(safeValue(getValue(product)))}</td>`).join("")}
+    </tr>
+  `;
+}
+
+function formatBooleanFeature(value) {
+  if (value === true) return "あり";
+  if (value === false) return "なし";
+  return formatSpecValue(value);
+}
+
+function formatArraySpec(value) {
+  if (!Array.isArray(value) || isUnknownSpec(value)) return "要確認";
+  return value.join(" / ");
+}
+
+function formatHoursSpec(value) {
+  if (typeof value === "number") return `最大${value}時間`;
+  return formatSpecValue(value);
+}
+
+function formatWeightSpec(value) {
+  if (typeof value === "number") return `約${value}g`;
+  return formatSpecValue(value);
+}
+
+function formatSpecValue(value) {
+  if (isUnknownSpec(value)) return "要確認";
+  return Array.isArray(value) ? value.join(" / ") : value;
 }
 
 function infoBlock(label, value) {

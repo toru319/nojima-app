@@ -475,41 +475,66 @@ const categoryFilterProfiles = {
   },
   earphone: {
     title: "イヤホン接客フィルター",
-    description: "用途、装着感、音の好み、予算から絞り込みます。複数選ぶと、条件をすべて満たす商品だけに絞ります。",
+    description: "装着方式、ノイズ制御、音質、通話、使い勝手から絞り込みます。要確認の仕様は条件一致に含めません。",
     groups: [
       {
-        id: "listening-style",
-        label: "使い方",
+        id: "wearing-style",
+        label: "装着方式",
         options: [
           {
-            id: "earphone-commute-anc",
-            label: "通勤・電車で静かに聴きたい",
-            description: "ノイズキャンセリングや密閉感を重視",
-            tags: ["noise-canceling"]
+            id: "earphone-canal",
+            label: "カナル型",
+            description: "密閉感と低音、ANCを重視",
+            specs: [{ key: "formFactor", values: ["カナル型"] }]
           },
           {
-            id: "earphone-open-ear",
-            label: "周囲の音も聞きたい",
-            description: "耳をふさぎすぎず、ながら聴きしやすい",
-            tags: ["open-ear", "ambient"]
+            id: "earphone-inner-ear",
+            label: "インナーイヤー型",
+            description: "耳栓感が苦手な人向け",
+            specs: [{ key: "formFactor", values: ["インナーイヤー型"] }]
+          },
+          {
+            id: "earphone-open-style",
+            label: "耳をふさがない",
+            description: "周囲の音を聞きながら使いやすい",
+            specs: [{ key: "formFactor", values: ["オープンイヤー型", "イヤーカフ型"] }]
+          },
+          {
+            id: "earphone-ear-cuff",
+            label: "イヤーカフ型",
+            description: "アクセサリー感覚で装着しやすい",
+            specs: [{ key: "formFactor", values: ["イヤーカフ型"] }]
           },
           {
             id: "earphone-sleep",
-            label: "寝ながら使いたい",
-            description: "睡眠向けの小型形状やアラーム機能を確認",
+            label: "睡眠向け",
+            description: "横向き寝や睡眠モードを確認",
+            specs: [{ key: "formFactor", values: ["睡眠特化型"] }],
             tags: ["sleep"]
+          }
+        ]
+      },
+      {
+        id: "noise-control",
+        label: "ノイズ制御",
+        options: [
+          {
+            id: "earphone-anc",
+            label: "ノイズキャンセリングあり",
+            description: "電車や店内騒音を抑えたい",
+            specs: [{ key: "anc", equals: true }]
           },
           {
-            id: "earphone-work-call",
-            label: "通話・Web会議が多い",
-            description: "マイク性能やマルチポイントを重視",
-            tags: ["call-quality", "multipoint"]
+            id: "earphone-ambient",
+            label: "外音取り込みあり",
+            description: "会話やアナウンスも聞きたい",
+            specs: [{ key: "ambientMode", equals: true }]
           },
           {
-            id: "earphone-sports",
-            label: "運動・散歩で使う",
-            description: "防水、落ちにくさ、外音確認を重視",
-            tags: ["water-resistant", "secure-fit", "open-ear"]
+            id: "earphone-no-anc-ok",
+            label: "ANCなしでもよい",
+            description: "価格、軽さ、開放感を優先",
+            specs: [{ key: "anc", equals: false }]
           }
         ]
       },
@@ -520,8 +545,8 @@ const categoryFilterProfiles = {
           {
             id: "earphone-hires",
             label: "ハイレゾ・音質重視",
-            description: "LDACや高音質ドライバーを確認",
-            tags: ["high-resolution", "ldac", "sound-quality", "premium"]
+            description: "LDAC対応や高音質設計を確認",
+            specs: [{ key: "codecs", includes: "LDAC" }]
           },
           {
             id: "earphone-bass",
@@ -533,7 +558,7 @@ const categoryFilterProfiles = {
             id: "earphone-spatial",
             label: "映画・空間オーディオ",
             description: "Dolby、3D、360などの立体音響を確認",
-            tags: ["spatial-audio", "dolby"]
+            specs: [{ key: "spatialAudio", equals: true }]
           },
           {
             id: "earphone-studio",
@@ -544,39 +569,61 @@ const categoryFilterProfiles = {
         ]
       },
       {
-        id: "fit",
-        label: "装着感",
+        id: "work-call",
+        label: "仕事・通話",
         options: [
           {
-            id: "earphone-small-light",
-            label: "小さく軽い",
-            description: "耳が小さい、長時間つけたい人向け",
-            tags: ["lightweight", "compact", "small-ear"]
+            id: "earphone-multipoint",
+            label: "マルチポイントあり",
+            description: "スマホとPCを切り替えたい",
+            specs: [{ key: "multipoint", equals: true }]
           },
           {
-            id: "earphone-secure-fit",
-            label: "落ちにくさ重視",
-            description: "イヤーカフ、サポーター、安定形状を確認",
-            tags: ["secure-fit", "ear-hook", "ear-cuff"]
+            id: "earphone-call-noise",
+            label: "通話ノイズ低減あり",
+            description: "Web会議や電話の聞こえやすさを重視",
+            specs: [{ key: "callFeatures", includes: "通話ノイズ低減" }]
           },
           {
-            id: "earphone-not-in-ear",
-            label: "耳をふさがない",
-            description: "圧迫感が苦手な人向け",
-            tags: ["open-ear", "ear-cuff", "inner-ear"]
-          },
-          {
-            id: "earphone-design",
-            label: "見た目・色も大事",
-            description: "色展開やアクセサリー感も確認",
-            tags: ["design", "fashion"]
+            id: "earphone-work-call",
+            label: "Web会議向け",
+            description: "通話品質と複数端末接続を重視",
+            specs: [
+              { key: "multipoint", equals: true },
+              { key: "callFeatures", includes: "通話ノイズ低減" }
+            ]
           }
         ]
       },
       {
-        id: "budget",
-        label: "予算・機能",
+        id: "daily-use",
+        label: "使い勝手",
         options: [
+          {
+            id: "earphone-water-resistant",
+            label: "防水あり",
+            description: "汗や小雨でも使いやすい",
+            specs: [{ key: "waterResistance", exists: true }]
+          },
+          {
+            id: "earphone-long-battery",
+            label: "電池持ち重視",
+            description: "ケース込み30時間以上を目安にする",
+            specs: [{ key: "batteryTotal", min: 30 }]
+          },
+          {
+            id: "earphone-small-light",
+            label: "小さく軽い",
+            description: "片耳5g以下や小型モデルを優先",
+            specs: [{ key: "weightEach", max: 5 }],
+            tags: ["lightweight", "compact", "small-ear"]
+          },
+          {
+            id: "earphone-wireless-charge",
+            label: "ワイヤレス充電あり",
+            description: "ケース充電の手軽さを重視",
+            specs: [{ key: "wirelessCharging", equals: true }]
+          },
           {
             id: "earphone-low-budget",
             label: "1万円前後まで",
@@ -597,12 +644,6 @@ const categoryFilterProfiles = {
             description: "音質、ANC、通話品質をまとめて重視",
             tags: ["premium", "high-function"],
             priceBands: ["高価格帯", "プレミアム価格帯"]
-          },
-          {
-            id: "earphone-long-battery",
-            label: "電池持ち重視",
-            description: "ケース込みの長時間再生を重視",
-            tags: ["long-battery", "battery"]
           }
         ]
       }
@@ -1466,6 +1507,383 @@ const dryerProducts = dryerInventory.map((item) => ({
   talk: `${item.name}は、${item.goodFor}に提案しやすい候補です。${item.strengths[0]}`,
   lastUpdated: "2026-07-05"
 }));
+
+const earphoneSpecsById = {
+  soundcore_liberty_5_pro: {
+    formFactor: "要確認",
+    anc: "要確認",
+    ambientMode: "要確認",
+    codecs: ["要確認"],
+    spatialAudio: "要確認",
+    multipoint: "要確認",
+    waterResistance: "要確認",
+    batterySingle: "要確認",
+    batteryTotal: "要確認",
+    weightEach: "要確認",
+    wirelessCharging: "要確認",
+    appSupport: "要確認",
+    callFeatures: ["要確認"],
+    notes: "日本公式ページで正式仕様を確認できていないため、販売可否、JAN、型番、機能を商品マスターで確認する。",
+    sourceStatus: "要確認"
+  },
+  soundcore_liberty_5: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: true,
+    multipoint: "要確認",
+    waterResistance: "IP55",
+    batterySingle: 12,
+    batteryTotal: 48,
+    weightEach: "要確認",
+    wirelessCharging: "要確認",
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "LDACやDolby Audioは対応端末とアプリ設定を確認する。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_liberty_4_pro: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IP55",
+    batterySingle: 10,
+    batteryTotal: 40,
+    weightEach: "要確認",
+    wirelessCharging: true,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "スクリーン付きケースで本体操作を補助できる。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_liberty_4: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: true,
+    multipoint: "要確認",
+    waterResistance: "IPX4",
+    batterySingle: 9,
+    batteryTotal: 28,
+    weightEach: "要確認",
+    wirelessCharging: "要確認",
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "3Dオーディオとヘルスモニタリングは利用端末とアプリ設定を確認する。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_sleep_a20: {
+    formFactor: "睡眠特化型",
+    anc: false,
+    ambientMode: false,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: false,
+    waterResistance: "IPX4",
+    batterySingle: 10,
+    batteryTotal: 55,
+    weightEach: 3,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["マイク非搭載"],
+    notes: "睡眠モードは最大14時間。ANCとマイクは非搭載。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_c50i: {
+    formFactor: "要確認",
+    anc: "要確認",
+    ambientMode: "要確認",
+    codecs: ["要確認"],
+    spatialAudio: "要確認",
+    multipoint: "要確認",
+    waterResistance: "要確認",
+    batterySingle: "要確認",
+    batteryTotal: "要確認",
+    weightEach: "要確認",
+    wirelessCharging: "要確認",
+    appSupport: "要確認",
+    callFeatures: ["要確認"],
+    notes: "国内公式の詳細仕様を確認できていないため、イヤーカフ型として扱う前に正式仕様を確認する。",
+    sourceStatus: "要確認"
+  },
+  soundcore_c40i: {
+    formFactor: "イヤーカフ型",
+    anc: false,
+    ambientMode: false,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 7,
+    batteryTotal: 21,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "オープンイヤーのため騒音環境での没入感と音漏れを店頭で確認する。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_aeroclip: {
+    formFactor: "イヤーカフ型",
+    anc: false,
+    ambientMode: false,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IP55",
+    batterySingle: 8,
+    batteryTotal: 32,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "オープンイヤー型でLDACを使う場合はAndroid端末とアプリ設定を確認する。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_liberty_buds: {
+    formFactor: "要確認",
+    anc: "要確認",
+    ambientMode: "要確認",
+    codecs: ["要確認"],
+    spatialAudio: "要確認",
+    multipoint: "要確認",
+    waterResistance: "要確認",
+    batterySingle: "要確認",
+    batteryTotal: "要確認",
+    weightEach: "要確認",
+    wirelessCharging: "要確認",
+    appSupport: "要確認",
+    callFeatures: ["要確認"],
+    notes: "同名の日本公式商品を確認できていないため、箱または商品ページの正式型番を確認する。",
+    sourceStatus: "要確認"
+  },
+  soundcore_p40i: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IPX5",
+    batterySingle: 12,
+    batteryTotal: 60,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "LDAC非対応。低音と長時間再生を価格帯の強みにする。",
+    sourceStatus: "公式確認"
+  },
+  soundcore_k20i_a3994n21: {
+    formFactor: "インナーイヤー型",
+    anc: false,
+    ambientMode: false,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: false,
+    waterResistance: "IPX5",
+    batterySingle: 6,
+    batteryTotal: 36,
+    weightEach: 3.3,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "カナル型の圧迫感が苦手な人向け。ANCは非搭載。",
+    sourceStatus: "公式確認"
+  },
+  victor_ha_fx150t: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: false,
+    waterResistance: "IPX4",
+    batterySingle: 7.5,
+    batteryTotal: 21,
+    weightEach: 4.4,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "LDAC非対応。Victor Studioチューニングを音質訴求の中心にする。",
+    sourceStatus: "公式確認"
+  },
+  victor_ha_a22t: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: false,
+    waterResistance: "IPX4",
+    batterySingle: "要確認",
+    batteryTotal: 26,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "小さい耳向けのXSイヤーピースとデザインを訴求する。",
+    sourceStatus: "公式確認"
+  },
+  victor_ha_np1t: {
+    formFactor: "イヤーカフ型",
+    anc: false,
+    ambientMode: false,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: false,
+    waterResistance: "IPX4",
+    batterySingle: 8,
+    batteryTotal: 24,
+    weightEach: 4.9,
+    wirelessCharging: false,
+    appSupport: false,
+    callFeatures: ["通話対応"],
+    notes: "オープンイヤー型のため、ANCや密閉感ではなく装着感とデザインで提案する。",
+    sourceStatus: "公式確認"
+  },
+  victor_ha_a110t: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 11,
+    batteryTotal: 44,
+    weightEach: "要確認",
+    wirelessCharging: true,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "ANCオン時は最大34時間目安。LDACと長時間再生を両立する上位候補。",
+    sourceStatus: "公式確認"
+  },
+  sony_wf_1000xm6: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC", "LC3"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 8,
+    batteryTotal: 24,
+    weightEach: "要確認",
+    wirelessCharging: true,
+    appSupport: true,
+    callFeatures: ["AI通話ノイズ低減"],
+    notes: "最上位ANCとLDACを基準に比較する。重量は公式発表値の確認が必要。",
+    sourceStatus: "公式確認"
+  },
+  sony_linkbuds_fit_wf_ls910n: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC", "LC3"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 5.5,
+    batteryTotal: 21,
+    weightEach: 4.9,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "フィットサポーターによる装着安定性を重視する人向け。",
+    sourceStatus: "公式確認"
+  },
+  sony_linkbuds_s_wf_ls900n: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC", "LC3"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 6,
+    batteryTotal: 20,
+    weightEach: 4.8,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "小型軽量のANC機として、LinkBuds FitやWF-C710Nと比較する。",
+    sourceStatus: "公式確認"
+  },
+  sony_wf_c710n: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 8.5,
+    batteryTotal: 30,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話ノイズ低減"],
+    notes: "LDAC非対応。SONYのANCを中価格帯で選びたい人向け。",
+    sourceStatus: "公式確認"
+  },
+  sony_wf_c510: {
+    formFactor: "カナル型",
+    anc: false,
+    ambientMode: true,
+    codecs: ["SBC", "AAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 11,
+    batteryTotal: 22,
+    weightEach: 4.6,
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["通話対応"],
+    notes: "ANC非搭載。価格、軽さ、外音取り込みを重視する入門候補。",
+    sourceStatus: "公式確認"
+  },
+  technics_eah_az100: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC", "LC3"],
+    spatialAudio: true,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 10,
+    batteryTotal: 28,
+    weightEach: 5.9,
+    wirelessCharging: true,
+    appSupport: true,
+    callFeatures: ["Voice Focus AI"],
+    notes: "3台マルチポイント、Dolby Atmos、磁性流体ドライバーを上位差別化にする。",
+    sourceStatus: "公式確認"
+  },
+  technics_eah_az40m2: {
+    formFactor: "カナル型",
+    anc: true,
+    ambientMode: true,
+    codecs: ["SBC", "AAC", "LDAC"],
+    spatialAudio: false,
+    multipoint: true,
+    waterResistance: "IPX4",
+    batterySingle: 5.5,
+    batteryTotal: 18,
+    weightEach: "要確認",
+    wirelessCharging: false,
+    appSupport: true,
+    callFeatures: ["ビームフォーミング通話"],
+    notes: "小型でTechnics音質を選びたい人向け。電池持ちはAZ100より短め。",
+    sourceStatus: "公式確認"
+  }
+};
 
 const products = [
   {
@@ -2460,6 +2878,12 @@ const products = [
   },
   ...dryerProducts
 ];
+
+products.forEach((product) => {
+  if (earphoneSpecsById[product.id]) {
+    product.specs = earphoneSpecsById[product.id];
+  }
+});
 
 function question(id, text, options) {
   return {
